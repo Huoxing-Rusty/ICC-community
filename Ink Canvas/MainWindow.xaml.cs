@@ -3520,8 +3520,7 @@ namespace Ink_Canvas
                         try
                         {
                             // 打开文件
-                            OpenSingleStrokeFile(icstkFile);
-                            ShowNotification(string.Format(Properties.MainWindowStrings.Main_StrokesFileLoaded, Path.GetFileName(icstkFile)));
+                            OpenStrokeFileFromShell(icstkFile);
                         }
                         catch (Exception ex)
                         {

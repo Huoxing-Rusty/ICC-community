@@ -680,7 +680,7 @@ namespace Ink_Canvas
         }
 
         /// <summary>退出视频展台特殊模式：恢复白板背景，保留展台拍照供下次进入继续查看。</summary>
-        private void ExitVideoPresenterSpecialMode()
+        private void ExitVideoPresenterSpecialMode(bool preserveInk = false)
         {
             if (!_isVideoPresenterSpecialMode) return;
             _isVideoPresenterSpecialMode = false;
@@ -688,7 +688,7 @@ namespace Ink_Canvas
             SetBoothGestureRotationUiEnabled(true);
             _boothMediaOpened = false;
             _boothPreviewRestartRetryCount = 0;
-            LogHelper.WriteLogToFile("[Booth] 退出视频展台拍摄模式，已丢弃拍摄态墨迹", LogHelper.LogType.Info);
+            LogHelper.WriteLogToFile($"[Booth] 退出视频展台拍摄模式，保留墨迹={preserveInk}", LogHelper.LogType.Info);
 
             // 停止 A4 纸实时识别定时器并隐藏覆盖层
             StopPaperDetectTimer();
@@ -717,10 +717,12 @@ namespace Ink_Canvas
                 // 丢弃特殊模式下绘制的墨迹
                 if (inkCanvas != null)
                 {
-                    inkCanvas.Strokes.Clear();
-                    // 同步清空 timeMachine 历史，避免 SaveStrokes 保存脏引用
-                    // （strokes 已从画布移除但 history 中仍有引用）
-                    timeMachine?.ClearStrokeHistory();
+                    if (!preserveInk)
+                    {
+                        inkCanvas.Strokes.Clear();
+                        // 同步清空历史，避免保存已从画布移除的笔画引用。
+                        timeMachine?.ClearStrokeHistory();
+                    }
                     inkCanvas.EditingMode = _inkEditingModeBeforeSpecialMode;
                 }
                 // 重置旋转基准
